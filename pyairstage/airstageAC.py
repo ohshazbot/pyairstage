@@ -78,8 +78,8 @@ class AirstageAC:
             return value
 
     def get_device_parameter(self, parameterName: ACParameter) -> Any:
-        value = self._cache[parameterName]
-        if (
+        value = self._cache.get(parameterName)
+        if value and (
             parameterName is ACParameter.INDOOR_TEMPERATURE
             or parameterName is ACParameter.OUTDOOR_TEMPERATURE
         ):
