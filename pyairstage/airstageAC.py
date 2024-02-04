@@ -90,9 +90,9 @@ class AirstageAC:
         return str(self._get_cached_device_parameter(ACParameter.DEVICE_NAME))
 
     def get_device_on_off_state(self):
-        return VALUE_TO_BOOLEAN[
+        return VALUE_TO_BOOLEAN.get(
             int(self._get_cached_device_parameter(ACParameter.ONOFF_MODE))
-        ]
+        )
 
     async def turn_on(self):
         await self._set_device_parameter(ACParameter.ONOFF_MODE, BooleanProperty.ON)
@@ -103,9 +103,9 @@ class AirstageAC:
     def get_operating_mode(self):
         if int(self._get_cached_device_parameter(ACParameter.ONOFF_MODE)) == 0:
             return OperationModeDescriptors.OFF
-        return VALUE_TO_OPERATION_MODE[
+        return VALUE_TO_OPERATION_MODE.get(
             int(self._get_cached_device_parameter(ACParameter.OPERATION_MODE))
-        ]
+        )
 
     async def set_operation_mode(self, mode: OperationMode):
         if not isinstance(mode, OperationMode):
@@ -113,9 +113,9 @@ class AirstageAC:
         await self._set_device_parameter(ACParameter.OPERATION_MODE, mode)
 
     def get_fan_speed(self):
-        return VALUE_TO_FAN_SPEED[
+        return VALUE_TO_FAN_SPEED.get(
             int(self._get_cached_device_parameter(ACParameter.FAN_SPEED))
-        ]
+        )
 
     async def set_fan_speed(self, fan_speed: FanSpeed):
         if not isinstance(fan_speed, FanSpeed):
@@ -169,7 +169,7 @@ class AirstageAC:
     def get_vertical_direction(self) -> VerticalPositionDescriptors | None:
         if self._is_capability_available(ACParameter.VERTICAL_DIRECTION):
             value = self._get_cached_device_parameter(ACParameter.VERTICAL_DIRECTION)
-            return VALUE_TO_VERTICAL_POSITION[int(value)]
+            return VALUE_TO_VERTICAL_POSITION.get(int(value))
         return None
 
     async def set_vertical_direction(self, direction: VerticalSwingPosition):
@@ -180,7 +180,7 @@ class AirstageAC:
     def get_vertical_swing(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.VERTICAL_SWING):
             value = self._get_cached_device_parameter(ACParameter.VERTICAL_SWING)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None
 
     async def set_vertical_swing(self, mode: BooleanProperty):
@@ -191,7 +191,7 @@ class AirstageAC:
     def get_economy_mode(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.ECONOMY_MODE):
             value = self._get_cached_device_parameter(ACParameter.ECONOMY_MODE)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None
 
     async def set_economy_mode(self, mode: BooleanProperty):
@@ -200,9 +200,9 @@ class AirstageAC:
         await self._set_device_parameter(ACParameter.ECONOMY_MODE, mode)
 
     def get_energy_save_fan(self):
-        return VALUE_TO_BOOLEAN[
+        return VALUE_TO_BOOLEAN.get(
             int(self._get_cached_device_parameter(ACParameter.ENERGY_SAVE_FAN))
-        ]
+        )
 
     async def set_energy_save_fan(self, mode: BooleanProperty):
         if not isinstance(mode, BooleanProperty):
@@ -212,7 +212,7 @@ class AirstageAC:
     def get_powerful_mode(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.POWERFUL_MODE):
             value = self._get_cached_device_parameter(ACParameter.POWERFUL_MODE)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None
 
     async def set_powerful_mode(self, mode: BooleanProperty):
@@ -223,7 +223,7 @@ class AirstageAC:
     def get_outdoor_low_noise(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.OUTDOOR_LOW_NOISE):
             value = self._get_cached_device_parameter(ACParameter.OUTDOOR_LOW_NOISE)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None
 
     async def set_outdoor_low_noise(self, mode: BooleanProperty):
@@ -234,7 +234,7 @@ class AirstageAC:
     def get_indoor_led(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.INDOOR_LED):
             value = self._get_cached_device_parameter(ACParameter.INDOOR_LED)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None
 
     async def set_indoor_led(self, mode: BooleanProperty):
@@ -245,5 +245,5 @@ class AirstageAC:
     def get_hmn_detection(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.HMN_DETECTION):
             value = self._get_cached_device_parameter(ACParameter.HMN_DETECTION)
-            return VALUE_TO_BOOLEAN[int(value)]
+            return VALUE_TO_BOOLEAN.get(int(value))
         return None

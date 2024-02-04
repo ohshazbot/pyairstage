@@ -86,7 +86,10 @@ class BooleanDescriptors(enum.Enum):
         return self._value_
 
 
-VALUE_TO_BOOLEAN = {0: BooleanDescriptors.OFF, 1: BooleanDescriptors.ON}
+VALUE_TO_BOOLEAN = {
+    0: BooleanDescriptors.OFF,
+    1: BooleanDescriptors.ON,
+}
 
 
 class VerticalSwingPosition(enum.IntEnum):
