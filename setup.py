@@ -11,6 +11,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/danielkaldheim/pyairstage",
+    version="1.1.8a2",
     license="MIT License",
     packages=["pyairstage"],
     install_requires=["aiohttp", "certifi", "chardet", "idna", "urllib3"],
