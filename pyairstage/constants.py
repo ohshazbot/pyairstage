@@ -111,11 +111,21 @@ class VerticalPositionDescriptors(enum.Enum):
         return self._value_
 
 
-VALUE_TO_VERTICAL_POSITION = {
-    1: VerticalPositionDescriptors.HIGHEST,
-    2: VerticalPositionDescriptors.HIGH,
-    3: VerticalPositionDescriptors.LOW,
-    4: VerticalPositionDescriptors.LOWEST,
+VALUE_TO_VERTICAL_POSITION_BY_POSITIONS = {
+    4: {
+        1: VerticalPositionDescriptors.HIGHEST,
+        2: VerticalPositionDescriptors.HIGH,
+        3: VerticalPositionDescriptors.LOW,
+        4: VerticalPositionDescriptors.LOWEST,
+    },
+    6: {
+        1: VerticalPositionDescriptors.HIGHEST,
+        2: VerticalPositionDescriptors.HIGH,
+        3: VerticalPositionDescriptors.CENTER_HIGH,
+        4: VerticalPositionDescriptors.CENTER_LOW,
+        5: VerticalPositionDescriptors.LOW,
+        6: VerticalPositionDescriptors.LOWEST,
+    }
 }
 
 CAPABILITY_NOT_AVAILABLE = "65535"
@@ -135,6 +145,8 @@ class ACParameter(enum.Enum):
 
     REFRESH_READ_PROPERTIES = "get_prop"
     VERTICAL_SWING = "iu_af_swg_vrt"
+    # Some devices have 6 swing positions, believe it's 4 by default
+    VERTICAL_SWING_POSITIONS = "af_vertical_num_dir"
     VERTICAL_DIRECTION = "iu_af_dir_vrt"
     HORIZONTAL_SWING = "iu_af_dir_hrz"
     HORIZONTAL_DIRECTION = "iu_af_swg_hrz"
@@ -150,8 +162,6 @@ class ACParameter(enum.Enum):
 
     # # below are readonly properties
     # DISPLAY_TEMPERATURE = "display_temperature"
-    # # Unclear what this does, seems to somewhat correlate to af_vertical_direction but not entirely
-    # VERTICAL_SWING_POSITION = "af_vertical_num_dir"
     DEVICE_NAME = "deviceName"
     MODEL = "iu_model"
 
