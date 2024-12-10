@@ -170,13 +170,21 @@ class AirstageAC:
     def get_vertical_direction(self) -> VerticalPositionDescriptors | None:
         if self._is_capability_available(ACParameter.VERTICAL_DIRECTION):
             value = self._get_cached_device_parameter(ACParameter.VERTICAL_DIRECTION)
-            return VALUE_TO_VERTICAL_POSITION[int(value)]
+            return VALUE_TO_VERTICAL_POSITION_BY_POSITIONS[
+                self.get_vertical_swing_positions()
+            ][int(value)]
         return None
 
     async def set_vertical_direction(self, direction: VerticalSwingPosition):
         if not isinstance(direction, VerticalSwingPosition):
             raise AirstageACError(f"Invalid fan direction value: {direction}")
         await self._set_device_parameter(ACParameter.VERTICAL_DIRECTION, direction)
+
+    def get_vertical_swing_positions(self) -> int:
+        """We have observed this being 4 or 6"""
+        return int(
+            self._get_cached_device_parameter(ACParameter.VERTICAL_SWING_POSITIONS)
+        )
 
     def get_vertical_swing(self) -> BooleanDescriptors | None:
         if self._is_capability_available(ACParameter.VERTICAL_SWING):

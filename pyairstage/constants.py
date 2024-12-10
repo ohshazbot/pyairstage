@@ -111,17 +111,27 @@ class VerticalPositionDescriptors(enum.Enum):
         return self._value_
 
 
-VALUE_TO_VERTICAL_POSITION = {
-    1: VerticalPositionDescriptors.HIGHEST,
-    2: VerticalPositionDescriptors.HIGH,
-    3: VerticalPositionDescriptors.LOW,
-    4: VerticalPositionDescriptors.LOWEST,
+VALUE_TO_VERTICAL_POSITION_BY_POSITIONS = {
+    4: {
+        1: VerticalPositionDescriptors.HIGHEST,
+        2: VerticalPositionDescriptors.HIGH,
+        3: VerticalPositionDescriptors.LOW,
+        4: VerticalPositionDescriptors.LOWEST,
+    },
+    6: {
+        1: VerticalPositionDescriptors.HIGHEST,
+        2: VerticalPositionDescriptors.HIGH,
+        3: VerticalPositionDescriptors.CENTER_HIGH,
+        4: VerticalPositionDescriptors.CENTER_LOW,
+        5: VerticalPositionDescriptors.LOW,
+        6: VerticalPositionDescriptors.LOWEST,
+    },
 }
 
 CAPABILITY_NOT_AVAILABLE = "65535"
 
 
-class ACParameter(enum.Enum):
+class ACParameter(enum.StrEnum):
     ONOFF_MODE = "iu_onoff"
     OPERATION_MODE = "iu_op_mode"
     FAN_SPEED = "iu_fan_spd"
@@ -135,6 +145,7 @@ class ACParameter(enum.Enum):
 
     REFRESH_READ_PROPERTIES = "get_prop"
     VERTICAL_SWING = "iu_af_swg_vrt"
+    VERTICAL_SWING_POSITIONS = "iu_af_inc_vrt"
     VERTICAL_DIRECTION = "iu_af_dir_vrt"
     HORIZONTAL_SWING = "iu_af_dir_hrz"
     HORIZONTAL_DIRECTION = "iu_af_swg_hrz"
