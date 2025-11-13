@@ -384,7 +384,6 @@ class ApiLocal(AirstageApi):
         retry = retry or self.retry
         data = {}
         count = 0
-        error = None
 
         payload = kwargs.get("json")
 
@@ -392,38 +391,16 @@ class ApiLocal(AirstageApi):
             if not payload:
                 raise ApiError(f"Post method needs a request body!")
 
-        while count < retry:
-            count += 1
-            try:
-                async with self.session.request(
-                    method,
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                    data=payload,
-                    headers=kwargs.get("headers"),
-                ) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json(content_type=None)
-                    return data
-            except (
-                aiohttp.ClientError,
-                aiohttp.ClientResponseError,
-                aiohttp.ClientConnectorError,
-                aiohttp.client_exceptions.ServerDisconnectedError,
-                ConnectionResetError,
-                requests.exceptions.HTTPError,
-                asyncio.TimeoutError,
-                SyntaxError,
-            ) as err:
-                if error is not None and not isinstance(err, type(error)):
-                    # If error changes, log the old one so we don't lose it
-                    _LOGGER.debug(error)
-                error = err
-                if isinstance(err, SyntaxError):
-                    # Don't retry syntax issues
-                    break
-
-            await asyncio.sleep(1)
-        raise ApiError(
-            f"No valid response after {count} failed attempt{['','s'][count>1]}"
-        ) from error
+        try:
+            async with self.session.request(
+                method,
+                url,
+                timeout=aiohttp.ClientTimeout(total=10),
+                data=payload,
+                headers=kwargs.get("headers"),
+            ) as resp:
+                resp.raise_for_status()
+                data = await resp.json(content_type=None)
+                return data
+        except (SyntaxError) as error:
+          raise ApiError("No valid response") from error
