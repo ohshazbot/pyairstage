@@ -6,7 +6,6 @@ from typing import Any, Coroutine
 import uuid
 import asyncio
 import aiohttp
-import requests
 from .constants import ACParameter
 
 HEADER_CONTENT_TYPE = "Content-Type"
@@ -239,47 +238,30 @@ class ApiLocal(AirstageApi):
 
     def __init__(
         self,
-        session: aiohttp.ClientSession = None,
+        session: aiohttp.ClientSession,
         retry: int = 5,
         device_id: str | None = None,
         ip_address: str | None = None,
     ) -> None:
-        if session is None:
-            session = aiohttp.ClientSession()
-
         self.session = session
-        self.retry = retry
         self.device_id = device_id
         self.ip_address = ip_address
 
     async def get_devices(self):
-        modelInfo = {}
-        try:
-            modelInfo = await self.get_parameters(
-                [
-                    ACParameter.MODEL,
-                ],
-            )
-        except ApiError as err:
-            _LOGGER.debug(err)
-
         acInfo = await self.get_parameters(
             [
+                ACParameter.MODEL,
                 ACParameter.INDOOR_LED,
-                # "iu_af_inc_hrz",
-                # "iu_af_inc_vrt",
                 ACParameter.INDOOR_TEMPERATURE,
                 ACParameter.OUTDOOR_TEMPERATURE,
                 ACParameter.HMN_DETECTION,
-                # "iu_main_ver",
-                # "iu_eep_ver",
-                # "iu_has_upd_main",
-                # "iu_has_upd_eep",
-                # "iu_fld_set80",
                 ACParameter.POWER_CONSUMPTION,
             ],
         )
 
+        # We cannot request more than 20 parameters at once and doing 2 back to back requests results in a disconnected error on the first attempt
+        # A lite pause fixes that though
+        await asyncio.sleep(0.4)
         modeInfo = await self.get_parameters(
             [
                 ACParameter.ONOFF_MODE,
@@ -303,7 +285,7 @@ class ApiLocal(AirstageApi):
             ],
         )
 
-        parameters = modelInfo | acInfo | modeInfo
+        parameters = acInfo | modeInfo
 
         formattedParameters = []
         for key in parameters:
@@ -378,13 +360,10 @@ class ApiLocal(AirstageApi):
         self,
         method: str,
         url: str,
-        retry: int = None,
         **kwargs,
     ):
-        retry = retry or self.retry
         data = {}
         count = 0
-        error = None
 
         payload = kwargs.get("json")
 
@@ -392,38 +371,17 @@ class ApiLocal(AirstageApi):
             if not payload:
                 raise ApiError(f"Post method needs a request body!")
 
-        while count < retry:
-            count += 1
-            try:
-                async with self.session.request(
-                    method,
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                    data=payload,
-                    headers=kwargs.get("headers"),
-                ) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json(content_type=None)
-                    return data
-            except (
-                aiohttp.ClientError,
-                aiohttp.ClientResponseError,
-                aiohttp.ClientConnectorError,
-                aiohttp.client_exceptions.ServerDisconnectedError,
-                ConnectionResetError,
-                requests.exceptions.HTTPError,
-                asyncio.TimeoutError,
-                SyntaxError,
-            ) as err:
-                if error is not None and not isinstance(err, type(error)):
-                    # If error changes, log the old one so we don't lose it
-                    _LOGGER.debug(error)
-                error = err
-                if isinstance(err, SyntaxError):
-                    # Don't retry syntax issues
-                    break
-
-            await asyncio.sleep(1)
-        raise ApiError(
-            f"No valid response after {count} failed attempt{['','s'][count>1]}"
-        ) from error
+        try:
+            async with self.session.request(
+                method,
+                url,
+                timeout=aiohttp.ClientTimeout(total=10),
+                data=payload,
+                headers=kwargs.get("headers"),
+            ) as resp:
+                resp.raise_for_status()
+                data = await resp.json(content_type=None)
+                return data
+        except SyntaxError as error:
+          raise ApiError("No valid response") from error
+    
