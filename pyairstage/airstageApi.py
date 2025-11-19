@@ -244,6 +244,7 @@ class ApiLocal(AirstageApi):
         ip_address: str | None = None,
     ) -> None:
         self.session = session
+        self.retry = retry
         self.device_id = device_id
         self.ip_address = ip_address
 
@@ -261,7 +262,7 @@ class ApiLocal(AirstageApi):
 
         # We cannot request more than 20 parameters at once and doing 2 back to back requests results in a disconnected error on the first attempt
         # A lite pause fixes that though
-        await asyncio.sleep(0.4)
+        await asyncio.sleep(0.5)
         modeInfo = await self.get_parameters(
             [
                 ACParameter.ONOFF_MODE,
@@ -360,10 +361,13 @@ class ApiLocal(AirstageApi):
         self,
         method: str,
         url: str,
+        retry: int = None,
         **kwargs,
     ):
+        retry = retry or self.retry
         data = {}
         count = 0
+        error = None
 
         payload = kwargs.get("json")
 
@@ -371,17 +375,21 @@ class ApiLocal(AirstageApi):
             if not payload:
                 raise ApiError(f"Post method needs a request body!")
 
-        try:
-            async with self.session.request(
-                method,
-                url,
-                timeout=aiohttp.ClientTimeout(total=10),
-                data=payload,
-                headers=kwargs.get("headers"),
-            ) as resp:
-                resp.raise_for_status()
-                data = await resp.json(content_type=None)
-                return data
-        except SyntaxError as error:
-          raise ApiError("No valid response") from error
-    
+        while count < retry:
+            count += 1
+            try:
+                async with self.session.request(
+                    method,
+                    url,
+                    timeout=aiohttp.ClientTimeout(total=10),
+                    data=payload,
+                    headers=kwargs.get("headers"),
+                ) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json(content_type=None)
+                    return data
+            except SyntaxError as err:
+              raise ApiError("No valid response") from err
+            except aiohttp.client_exceptions.ServerDisconnectedError as err:
+              await asyncio.sleep(0.5)
+              error = err
